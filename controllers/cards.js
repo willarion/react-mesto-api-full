@@ -29,12 +29,25 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
+  const cardId = req.params.cardId;
+  const userId = req.user._id;
 
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findOne({_id: cardId})
     .orFail(() => {
       createNotFoundError();
     })
-    .then(card => res.send({ data: card, message: "карточка удалена" }))
+    .then((card) => {
+      if((card.owner).toString() !== userId) {
+        const err = new Error();
+        err.statusCode = 403;
+        err.message = 'Нельзя удалять карточки других пользователей'
+        throw err;
+      } else {
+        Card.findByIdAndRemove(cardId)
+          .then(card => res.send({ data: card, message: "карточка удалена" }))
+          .catch(err => err);
+      }
+    })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         invalidDataNotification(res, err, 'Невалидный id карточки');
@@ -42,6 +55,11 @@ function deleteCard(req, res) {
       }
       if (err.statusCode === ERROR_NOT_FOUND) {
         nonExistentDataNotification(res, err, 'Карточки с таким id не существует');
+        return;
+      }
+      if (err.statusCode === 403) {
+        res.status(403).send(err.message);
+        console.log('одна ошибка и ты ошибся')
         return;
       }
       serverErrorNotification(res, err, 'Серверная ошибка');
