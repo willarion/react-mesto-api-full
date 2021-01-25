@@ -1,114 +1,98 @@
 const Card = require('../models/card');
-const { ERROR_NOT_FOUND } = require('../utils/constants');
 const {
-  serverErrorNotification,
-  invalidDataNotification,
-  nonExistentDataNotification,
-  createNotFoundError
-} = require('../helpers/errors');
+  NotFoundError,
+  ForbiddenError,
+  InvalidRequestError
+} = require('../errors/errors');
 
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   Card.find({})
-    .then(cards => res.send(cards))
-    .catch(err => serverErrorNotification(res, err, 'Серверная ошибка'));
+    .then((cards) => {
+      if(!cards) {
+        throw new Error();
+      }
+      res.send(cards);
+    })
+    .catch(err => next(err));
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
 
   Card.create({name, link, owner: req.user._id })
     .then(card => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        invalidDataNotification(res, err, 'Введённые данные невалидны');
-        return;
+        throw new InvalidRequestError('Введённые данные невалидны');
       }
-      serverErrorNotification(res, err, 'Серверная ошибка');
-    });
+      throw err;
+    })
+    .catch(err => next(err));
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   const cardId = req.params.cardId;
   const userId = req.user._id;
 
   Card.findOne({_id: cardId})
     .orFail(() => {
-      createNotFoundError();
+      throw new NotFoundError('Карточки с таким id не существует');
     })
     .then((card) => {
       if((card.owner).toString() !== userId) {
-        const err = new Error();
-        err.statusCode = 403;
-        err.message = 'Нельзя удалять карточки других пользователей'
-        throw err;
+        throw new ForbiddenError('Нельзя удалять карточки других пользователей');
       } else {
         Card.findByIdAndRemove(cardId)
           .then(card => res.send({ data: card, message: "карточка удалена" }))
-          .catch(err => err);
+          .catch(err => next(err));
       }
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        invalidDataNotification(res, err, 'Невалидный id карточки');
-        return;
+        throw new InvalidRequestError('Невалидный id карточки');
       }
-      if (err.statusCode === ERROR_NOT_FOUND) {
-        nonExistentDataNotification(res, err, 'Карточки с таким id не существует');
-        return;
-      }
-      if (err.statusCode === 403) {
-        res.status(403).send(err.message);
-        console.log('одна ошибка и ты ошибся')
-        return;
-      }
-      serverErrorNotification(res, err, 'Серверная ошибка');
-    });
+      next(err);
+    })
+    .catch(err => next(err));
 }
 
-function likeCard(req, res) {
+function likeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      createNotFoundError();
+      throw new NotFoundError('Карточки с таким id не существует');
     })
     .then(card => res.send({ data: card, message: "лайк поставлен" }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        invalidDataNotification(res, err, 'Невалидный id карточки');
-        return;
+        throw new InvalidRequestError('Невалидный id карточки');
       }
-      if (err.statusCode === ERROR_NOT_FOUND) {
-        nonExistentDataNotification(res, err, 'Карточки с таким id не существует');
-        return;
-      }
-      serverErrorNotification(res, err, 'Серверная ошибка');
-    });
+      next(err);
+    })
+    .catch(err => next(err));
 }
 
-function dislikeCard(req, res) {
+function dislikeCard(req, res, next) {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
-      createNotFoundError();
+      throw new NotFoundError('Карточки с таким id не существует');
     })
     .then(card => res.send({ data: card, message: "лайк удалён" }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        invalidDataNotification(res, err, 'Невалидный id карточки');
+        throw new InvalidRequestError('Невалидный id карточки');
       }
-      if (err.statusCode === ERROR_NOT_FOUND) {
-        nonExistentDataNotification(res, err, 'Карточки с таким id не существует');
-        return;
-      }
-      serverErrorNotification(res, err, 'Серверная ошибка');
-    });
+      next(err);
+    })
+    .catch(err => next(err));
 }
 
 
