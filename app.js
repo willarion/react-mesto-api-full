@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
@@ -20,6 +21,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(requestLogger);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -27,6 +29,7 @@ app.post('/signin', celebrate({
     password: Joi.string().required().min(8),
   }),
 }), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -45,6 +48,8 @@ app.use('/', cardsRouter);
 app.use('*', (req, res) => {
   res.status(404).send({ message: "Запрашиваемый ресурс не найден"});
 });
+
+app.use(errorLogger);
 
 app.use(errors()); //celebrate errors
 
