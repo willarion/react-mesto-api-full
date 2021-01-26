@@ -47,7 +47,7 @@ function App() {
           if (res) {
             api.getCardList(jwt)
               .then((cardsArray) => {
-                setCards(cardsArray);
+                setCards(cardsArray.reverse());
               })
               .catch((err) => {
                 console.log(`Ошибка: ${err}`);
@@ -130,7 +130,7 @@ function App() {
         Promise.all([api.getUserInfo(data.token), api.getCardList(data.token)])
         .then(([userInfoObject, cardsArray]) => {
           setCurrentUser(userInfoObject.data);
-          setCards(cardsArray);
+          setCards(cardsArray.reverse());
         })
         .catch((err) => {
           console.log(`Ошибка: ${err}`);

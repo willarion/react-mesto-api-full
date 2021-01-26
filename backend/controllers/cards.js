@@ -21,7 +21,7 @@ function createCard(req, res, next) {
   const { name, link } = req.body;
 
   Card.create({name, link, owner: req.user._id })
-    .then(card => res.send({ data: card }))
+    .then(card => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new InvalidRequestError('Введённые данные невалидны');
