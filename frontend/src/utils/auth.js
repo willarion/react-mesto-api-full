@@ -39,6 +39,7 @@ export const login = (password, email) => {
   .then((data) => {
     if (data.token){
       localStorage.setItem('jwt', data.token);
+      console.log(localStorage);
       return data;
     }
   })

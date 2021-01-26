@@ -66,7 +66,7 @@ function likeCard(req, res, next) {
     .orFail(() => {
       throw new NotFoundError('Карточки с таким id не существует');
     })
-    .then(card => res.send({ data: card, message: "лайк поставлен" }))
+    .then(card => res.send(card))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         throw new InvalidRequestError('Невалидный id карточки');
@@ -85,7 +85,7 @@ function dislikeCard(req, res, next) {
     .orFail(() => {
       throw new NotFoundError('Карточки с таким id не существует');
     })
-    .then(card => res.send({ data: card, message: "лайк удалён" }))
+    .then(card => res.send(card))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         throw new InvalidRequestError('Невалидный id карточки');

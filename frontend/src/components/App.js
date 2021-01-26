@@ -239,7 +239,9 @@ function App() {
 
   //редактирование профиля
   function handleUpdateUser(userInfoObj) {
-    api.setUserInfo(userInfoObj)
+    const jwt = localStorage.getItem('jwt');
+
+    api.setUserInfo(userInfoObj, jwt)
     .then((res) => {
       setCurrentUser(res);
       closeAllPopups();
@@ -251,7 +253,9 @@ function App() {
   }
 
   function handleUpdateAvatar(avatarInfoObj) {
-    api.setUserAvatar(avatarInfoObj)
+    const jwt = localStorage.getItem('jwt');
+
+    api.setUserAvatar(avatarInfoObj, jwt)
     .then((res) => {
       console.log(res);
       setCurrentUser(res);
@@ -266,7 +270,7 @@ function App() {
 
   //карточки  
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     
     api.changeLikeCardStatus(card._id, !isLiked)
     .then((newCard) => {

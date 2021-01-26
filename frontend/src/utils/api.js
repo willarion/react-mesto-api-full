@@ -81,11 +81,11 @@ class Api {
     .then(this._handleOriginalResponse);
   }
 
-  setUserInfo(userInfoObj) {
+  setUserInfo(userInfoObj, token) {
     return fetch(`${this._baseUrl}/users/me`, {
       method: 'PATCH',
       headers: {
-        authorization: this._authorization,
+        authorization: `Bearer ${token}`,
         'Content-Type': this._contentType,
       },
       body: JSON.stringify(userInfoObj)
@@ -93,11 +93,11 @@ class Api {
     .then(this._handleOriginalResponse);
   }
 
-  setUserAvatar(avatarLink) {
+  setUserAvatar(avatarLink, token) {
     return fetch(`${this._baseUrl}/users/me/avatar`, {
       method: 'PATCH',
       headers: {
-        authorization: this._authorization,
+        authorization: `Bearer ${token}`,
         'Content-Type': this._contentType
         },
       body: JSON.stringify(avatarLink)
