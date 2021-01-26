@@ -1,7 +1,7 @@
 const apiSettings = {
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-16',
+  baseUrl: 'http://localhost:3000',
   headers: {
-    authorization: 'fd3bf28b-131d-4028-93e3-e0966938f828',
+    authorization: `Bearer ${localStorage.getItem('jwt')}`,
     'Content-Type': 'application/json'
   }
 }

@@ -16,19 +16,19 @@ class Api {
     return Promise.reject(res.status);
   }
 
-  getUserInfo() {
+  getUserInfo(token) {
     return fetch(`${this._baseUrl}/users/me`, {
       headers: {
-        authorization: this._authorization
+        authorization: `Bearer ${token}`
         }
     })
     .then(this._handleOriginalResponse);
   }
 
-  getCardList() {
+  getCardList(token) {
     return fetch(`${this._baseUrl}/cards`, {
       headers: {
-        authorization: this._authorization
+        authorization: `Bearer ${token}`
         }
     })
     .then(this._handleOriginalResponse);
@@ -38,7 +38,7 @@ class Api {
     if (isLiked) {
       //putCardLike
 
-      return fetch(`${this._baseUrl}/cards/likes/${cardId}`, {
+      return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
         method: 'PUT',
         headers: {
           authorization: this._authorization
@@ -49,7 +49,7 @@ class Api {
     else {
       //deleteCardLike
 
-      return fetch(`${this._baseUrl}/cards/likes/${cardId}`, {
+      return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
         method: 'DELETE',
         headers: {
           authorization: this._authorization
@@ -86,7 +86,7 @@ class Api {
       method: 'PATCH',
       headers: {
         authorization: this._authorization,
-        'Content-Type': this._contentType
+        'Content-Type': this._contentType,
       },
       body: JSON.stringify(userInfoObj)
     })

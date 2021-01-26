@@ -22,23 +22,176 @@ import Register from './Register';
 function App() {
   const history = useHistory();
 
-  //получение данных пользователя
+  //авторизация
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [userEmail, setUserEmail] = React.useState('');
+  
+  //получение страницы пользователя с карточками
   const [currentUser, setCurrentUser] = React.useState({});
+  const [cards, setCards] = React.useState([]);
+
+  function handleLogin() {
+    setLoggedIn(true);
+  }
+
+  function handleUserEmail(email) {
+    setUserEmail(email);
+  }
+
+  React.useEffect(() => { //tokenCheck
+    const jwt = localStorage.getItem('jwt');
+
+    if (jwt) {
+      auth.getContent(jwt)
+        .then((res) => {
+          if (res) {
+            api.getCardList(jwt)
+              .then((cardsArray) => {
+                setCards(cardsArray);
+              })
+              .catch((err) => {
+                console.log(`Ошибка: ${err}`);
+              });
+
+            setCurrentUser(res.data);
+            handleUserEmail(res.data.email);
+            handleLogin();
+            history.push('/');
+          }
+        })
+    } 
+  }, [history, loggedIn])
+
+
+  //кнопки Header
+  const [urlAdress, setUrlAdress] = React.useState('');
+  const [urlName, setUrlName] = React.useState('');
+  const [location, setLocation] = React.useState(window.location.pathname);
+
+  const loc = useLocation();
 
   React.useEffect(() => {
-    const userInfo = api.getUserInfo();
-    
-    userInfo
-    .then((infoObj) => {
-      
-      setCurrentUser(infoObj);
+    setLocation(loc.pathname);
+  }, [loc]);
+  
+
+  React.useEffect(() => {
+    if (!loggedIn) {
+      return
+    } else if (location === '/') {
+      setUrlAdress('/sing-in');
+      setUrlName('Выйти');
+    }
+  }, [location, loggedIn]);
+  
+  React.useEffect(() => {
+    if (location === '/sing-up') {
+      setUrlAdress('/sing-in');
+      setUrlName('Войти');
+    } else if (location === '/sing-in') {
+      setUrlAdress('/sing-up');
+      setUrlName('Регистрация');
+    }
+  }, [loggedIn, location]);
+
+
+  function signUp(password, email, resetForm) {
+    return auth.register(password, email)
+    .then((res) => {
+      if (res) {
+        handleAuthenticationResult({
+          message: 'Вы успешно зарегистрировались!',
+          image: goodTooltipImage});
+        return res;
+      } else {
+        console.log(res.status)
+        handleAuthenticationResult({
+          message: 'Что-то пошло не так! Попробуйте ещё раз!',
+          image: badTooltipImage});
+      }
+      resetForm();
     })
-    .catch((err) => {
-        console.log(`Ошибка: ${err}`);
-      })
-    },
-    [] // вызовется только один раз при монтировании компонента
-  );
+    .then(() => history.push('/sign-in'))
+    .catch((e) => console.log(e));
+  }
+
+
+  function signIn(password, email, resetForm) {
+    return auth.login(password, email)
+    .then((data) => {
+      if (!data) {
+        handleAuthenticationResult({
+          message: 'Что-то пошло не так! Попробуйте ещё раз!',
+          image: badTooltipImage});
+        return;
+      } 
+      if (data.token) {
+
+        Promise.all([api.getUserInfo(data.token), api.getCardList(data.token)])
+        .then(([userInfoObject, cardsArray]) => {
+          setCurrentUser(userInfoObject.data);
+          setCards(cardsArray);
+        })
+        .catch((err) => {
+          console.log(`Ошибка: ${err}`);
+        });
+
+        handleUserEmail(email);
+        resetForm();
+        handleLogin();
+        history.push('/');
+        
+        return;
+      }
+    })
+    .catch((e) => console.log(e));
+
+  }
+
+
+  function singOut() {
+    if (urlName === 'Выйти') {
+      localStorage.removeItem('jwt');
+      handleUserEmail('');
+      history.push('/sing-in');
+    } else {
+      return;
+    }
+  }
+
+
+  //попап результата регистрации
+  const [isInfoTooltipPopupOpen, changeInfoTooltipPopupState] = React.useState(false);
+  const [infoTooltipMessage, setInfoTooltipMessage] = React.useState('');
+  const [infoTooltipImage, setInfoTooltipImage] = React.useState('');
+
+  function handleAuthenticationResult({message, image}) {
+    changeInfoTooltipPopupState(true);
+    setInfoTooltipMessage(message);
+    setInfoTooltipImage(image);
+  }
+
+  // //получение страницы пользователя с карточками
+  // const [currentUser, setCurrentUser] = React.useState({});
+  // const [cards, setCards] = React.useState([]);
+
+
+  // React.useEffect(() => {
+  //   if(!loggedIn) {
+  //     return;
+  //   } else {
+
+  //     Promise.all([api.getUserInfo(), api.getCardList()])
+  //       .then(([userInfoObject, cardsArray]) => {
+  //         console.log(userInfoObject);
+  //         setCurrentUser(userInfoObject.data);
+  //         setCards(cardsArray);
+  //       })
+  //       .catch((err) => {
+  //         console.log(`Ошибка: ${err}`);
+  //       });
+  //   }
+  // }, [loggedIn]);
 
   
   //открытие и закрытие модалок
@@ -110,23 +263,7 @@ function App() {
   }
 
 
-  //карточки
-  const [cards, setCards] = React.useState([]);
-  
-  React.useEffect(() => {
-   
-    api.getCardList()
-    .then((cardsArray) => {
-      setCards(cardsArray);
-    })
-    .catch((err) => {
-        console.log(`Ошибка: ${err}`);
-      })
-    },
-    [] // вызовется только один раз при монтировании компонента
-  );
-
-  
+  //карточки  
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i._id === currentUser._id);
     
@@ -166,134 +303,6 @@ function App() {
     });
 
   }
-
-
-  //авторизация
-  const [loggedIn, setLoggedIn] = React.useState(false);
-  const [userEmail, setUserEmail] = React.useState('');
-
-  function handleLogin() {
-    setLoggedIn(true);
-  }
-
-  function handleUserEmail(email) {
-    setUserEmail(email);
-  }
-
-  React.useEffect(() => { //tokenCheck
-    const jwt = localStorage.getItem('jwt');
-
-    if (jwt) {
-      auth.getContent(jwt)
-        .then((res) => {
-          if (res) {
-            handleUserEmail(res.data.email);
-            handleLogin();
-            history.push('/');
-          }
-        })
-    } 
-  }, [history])
-
-
-  //кнопки Header
-  const [urlAdress, setUrlAdress] = React.useState('');
-  const [urlName, setUrlName] = React.useState('');
-  const [location, setLocation] = React.useState(window.location.pathname);
-
-  const loc = useLocation();
-
-  React.useEffect(() => {
-    setLocation(loc.pathname);
-  }, [loc]);
-  
-
-  React.useEffect(() => {
-    if (!loggedIn) {
-      return
-    } else if (location === '/') {
-      setUrlAdress('/sing-in');
-      setUrlName('Выйти');
-    }
-  }, [location, loggedIn]);
-  
-  React.useEffect(() => {
-    if (location === '/sing-up') {
-      setUrlAdress('/sing-in');
-      setUrlName('Войти');
-    } else if (location === '/sing-in') {
-      setUrlAdress('/sing-up');
-      setUrlName('Регистрация');
-    }
-  }, [loggedIn, location]);
-
-
-  function signUp(password, email, resetForm) {
-    return auth.register(password, email)
-    .then((res) => {
-      if (res) {
-        handleAuthenticationResult({
-          message: 'Вы успешно зарегистрировались!',
-          image: goodTooltipImage});
-        return res;
-      } else {
-        console.log(res.status)
-        handleAuthenticationResult({
-          message: 'Что-то пошло не так! Попробуйте ещё раз!',
-          image: badTooltipImage});
-      }
-      resetForm();
-    })
-    .then(() => history.push('/sign-in'))
-    .catch((e) => console.log(e));
-  }
-
-
-  function signIn(password, email, resetForm) {
-    return auth.login(password, email)
-    .then((data) => {
-      if (!data) {
-        handleAuthenticationResult({
-          message: 'Что-то пошло не так! Попробуйте ещё раз!',
-          image: badTooltipImage});
-        return;
-      } 
-      if (data.token) {
-        handleUserEmail(email);
-        resetForm();
-        handleLogin();
-        history.push('/');
-        
-        return;
-      }
-    })
-    .catch((e) => console.log(e));
-
-  }
-
-
-  function singOut() {
-    if (urlName === 'Выйти') {
-      localStorage.removeItem('jwt');
-      handleUserEmail('');
-      history.push('/sing-in');
-    } else {
-      return;
-    }
-  }
-
-
-  //попап результата регистрации
-  const [isInfoTooltipPopupOpen, changeInfoTooltipPopupState] = React.useState(false);
-  const [infoTooltipMessage, setInfoTooltipMessage] = React.useState('');
-  const [infoTooltipImage, setInfoTooltipImage] = React.useState('');
-
-  function handleAuthenticationResult({message, image}) {
-    changeInfoTooltipPopupState(true);
-    setInfoTooltipMessage(message);
-    setInfoTooltipImage(image);
-  }
-
 
 
   return (
