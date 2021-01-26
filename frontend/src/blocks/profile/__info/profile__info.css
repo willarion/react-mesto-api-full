@@ -1,0 +1,18 @@
+.profile__info {
+  display: grid;
+  grid-template-columns: 1fr 24px;
+  grid-template-areas: 
+  "grid_name grid_edit-btn"
+  "grid_bio .";
+  gap: 16px 17px;
+}
+
+@media screen and (max-width: 600px) {
+  .profile__info {
+    grid-template-columns: 1fr 18px;
+    grid-template-areas: 
+    "grid_name grid_edit-btn"
+    "grid_bio grid_bio";
+    gap: 14px 5px;
+  }
+}

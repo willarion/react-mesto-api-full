@@ -1,0 +1,14 @@
+@import url(./__container/authentification__containter.css);
+@import url(./__input-line/__input-line.css);
+@import url(./__title/authentification__title.css);
+@import url(./__input-field/authentification__input-field.css);
+@import url(./__info-input/authentification__info-input.css);
+@import url(./__save-btn/authentification__save-btn.css);
+@import url(./__hint/authentification__hint.css);
+
+.authentification {  
+  background-color: transparent;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}

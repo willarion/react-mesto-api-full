@@ -1,0 +1,15 @@
+@import url(./__list/elements__list.css);
+
+.elements {
+  width: 100%;
+  margin-bottom: 66px;
+}
+
+
+@media screen and (max-width: 600px) {
+  .elements {
+    width: calc(100% - 38px);
+    margin: auto;
+    margin-bottom: 48px;
+  }
+}

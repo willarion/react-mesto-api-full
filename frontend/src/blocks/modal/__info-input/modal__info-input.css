@@ -1,0 +1,11 @@
+.modal__info-input {
+  border: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+
+@media screen and (max-width: 450px) {
+  .modal__info-input {
+    margin-bottom: 34px;
+  }
+}

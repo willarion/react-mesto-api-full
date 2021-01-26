@@ -1,0 +1,18 @@
+.modal__container {
+  width: 430px;
+  max-height: 330px;
+  background-color: #fff;
+  border-radius: 10px;
+  color: #000;
+  padding: 36px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+@media screen and (max-width: 450px) {
+  .modal__container {
+    width: 250px;
+    height: 300px;
+    padding: 20px;
+  }
+}
