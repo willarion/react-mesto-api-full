@@ -253,6 +253,7 @@ function App() {
   function handleUpdateAvatar(avatarInfoObj) {
     api.setUserAvatar(avatarInfoObj)
     .then((res) => {
+      console.log(res);
       setCurrentUser(res);
       closeAllPopups();
     })

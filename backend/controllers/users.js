@@ -68,7 +68,7 @@ function updateUserProfile(req, res, next) {
     .orFail(() => {
       throw new NotFoundError('Пользователя с таким id не существует');
     })
-    .then(user => res.send({ data: user }))
+    .then(user => res.send( user ))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new InvalidRequestError('Введённые данные невалидны');
@@ -93,7 +93,7 @@ function updateUserAvatar(req, res, next) {
     .orFail(() => {
       throw new NotFoundError('Пользователя с таким id не существует');
     })
-    .then(user => res.send({ data: user }))
+    .then(user => res.send( user ))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new InvalidRequestError('Введённые данные невалидны');
