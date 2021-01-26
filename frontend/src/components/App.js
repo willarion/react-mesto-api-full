@@ -43,24 +43,20 @@ function App() {
 
     if (jwt) {
       auth.getContent(jwt)
-        .then((res) => {
+        .then(([userInfoObject, cardsArray]) => {
+          const res = [userInfoObject, cardsArray];
           if (res) {
-            api.getCardList(jwt)
-              .then((cardsArray) => {
-                setCards(cardsArray.reverse());
-              })
-              .catch((err) => {
-                console.log(`Ошибка: ${err}`);
-              });
-
-            setCurrentUser(res.data);
-            handleUserEmail(res.data.email);
+            setCards(cardsArray.reverse());}
+            setCurrentUser(userInfoObject.data);
+            handleUserEmail(userInfoObject.data.email);
             handleLogin();
             history.push('/');
-          }
         })
+        .catch((err) => {
+          console.log(`Ошибка: ${err}`);
+        });
     } 
-  }, [history, loggedIn])
+  }, [history])
 
 
   //кнопки Header
@@ -104,7 +100,7 @@ function App() {
           image: goodTooltipImage});
         return res;
       } else {
-        console.log(res.status)
+
         handleAuthenticationResult({
           message: 'Что-то пошло не так! Попробуйте ещё раз!',
           image: badTooltipImage});
@@ -127,14 +123,16 @@ function App() {
       } 
       if (data.token) {
 
-        Promise.all([api.getUserInfo(data.token), api.getCardList(data.token)])
-        .then(([userInfoObject, cardsArray]) => {
-          setCurrentUser(userInfoObject.data);
-          setCards(cardsArray.reverse());
-        })
-        .catch((err) => {
-          console.log(`Ошибка: ${err}`);
-        });
+        auth.getContent(data.token)
+          .then(([userInfoObject, cardsArray]) => {
+            const res = [userInfoObject, cardsArray];
+
+            setCurrentUser(userInfoObject.data);
+            setCards(cardsArray.reverse());
+          })
+          .catch((err) => {
+            console.log(`Ошибка: ${err}`);
+          });
 
         handleUserEmail(email);
         resetForm();
@@ -170,28 +168,6 @@ function App() {
     setInfoTooltipMessage(message);
     setInfoTooltipImage(image);
   }
-
-  // //получение страницы пользователя с карточками
-  // const [currentUser, setCurrentUser] = React.useState({});
-  // const [cards, setCards] = React.useState([]);
-
-
-  // React.useEffect(() => {
-  //   if(!loggedIn) {
-  //     return;
-  //   } else {
-
-  //     Promise.all([api.getUserInfo(), api.getCardList()])
-  //       .then(([userInfoObject, cardsArray]) => {
-  //         console.log(userInfoObject);
-  //         setCurrentUser(userInfoObject.data);
-  //         setCards(cardsArray);
-  //       })
-  //       .catch((err) => {
-  //         console.log(`Ошибка: ${err}`);
-  //       });
-  //   }
-  // }, [loggedIn]);
 
   
   //открытие и закрытие модалок
@@ -257,7 +233,6 @@ function App() {
 
     api.setUserAvatar(avatarInfoObj, jwt)
     .then((res) => {
-      console.log(res);
       setCurrentUser(res);
       closeAllPopups();
     })
@@ -286,7 +261,6 @@ function App() {
   function handleCardDelete(card) {
     api.deleteCard(card._id)
     .then((res) => {
-      console.log(res);
       const newCards = cards.filter((c) => c._id !== card._id);
 
       setCards(newCards);
