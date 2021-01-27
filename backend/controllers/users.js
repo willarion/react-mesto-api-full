@@ -5,7 +5,8 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const {
   NotFoundError,
   UnathorizedError,
-  InvalidRequestError
+  InvalidRequestError,
+  DataConflictError
 } = require('../errors/errors');
 
 
@@ -109,20 +110,28 @@ function updateUserAvatar(req, res, next) {
 function createUser(req, res, next) {
   const { email, password, name, about, avatar } = req.body;
 
-  bcrypt.hash(password, 10)
-    .then(hash => User.create({
-      email,
-      password: hash,
-      name,
-      about,
-      avatar
-    }))
-    .then(user => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new InvalidRequestError('Введённые данные невалидны');
+  User.findOne({email: email})
+    .then((user) => {
+      if(user) {
+        throw new DataConflictError('Пользователь уже зарегистрирован');
+      } else {
+        bcrypt.hash(password, 10)
+          .then(hash => User.create({
+            email,
+            password: hash,
+            name,
+            about,
+            avatar
+          }))
+          .then(user => res.send({ data: user }))
+          .catch((err) => {
+            if (err.name === 'ValidationError') {
+              throw new InvalidRequestError('Введённые данные невалидны');
+            }
+            next(err);
+          })
+          .catch(err => next(err));
       }
-      next(err);
     })
     .catch(err => next(err));
 }
