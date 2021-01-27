@@ -26,10 +26,18 @@ class InvalidRequestError extends Error {
   }
 }
 
+class DataConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 409;
+  }
+}
+
 
 module.exports = {
   NotFoundError,
   ForbiddenError,
   UnathorizedError,
-  InvalidRequestError
+  InvalidRequestError,
+  DataConflictError
 };
