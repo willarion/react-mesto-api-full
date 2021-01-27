@@ -245,9 +245,11 @@ function App() {
 
   //карточки  
   function handleCardLike(card) {
+    const jwt = localStorage.getItem('jwt');
+
     const isLiked = card.likes.some(i => i === currentUser._id);
     
-    api.changeLikeCardStatus(card._id, !isLiked)
+    api.changeLikeCardStatus(card._id, !isLiked, jwt)
     .then((newCard) => {
       const newCards = cards.map((c) => c._id === card._id ? newCard : c);
       
@@ -259,7 +261,9 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api.deleteCard(card._id)
+    const jwt = localStorage.getItem('jwt');
+
+    api.deleteCard(card._id, jwt)
     .then((res) => {
       const newCards = cards.filter((c) => c._id !== card._id);
 
@@ -271,8 +275,9 @@ function App() {
   }
 
   function handleAddPlaceSubmit(cardInfo) {
+    const jwt = localStorage.getItem('jwt');
 
-    api.addNewCard(cardInfo)
+    api.addNewCard(cardInfo, jwt)
     .then((newCard) => {
       setCards([newCard, ...cards]);
       closeAllPopups();

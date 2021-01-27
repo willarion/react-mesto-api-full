@@ -1,7 +1,7 @@
 const apiSettings = {
-  baseUrl: 'http://localhost:3000',
+  baseUrl: 'https://api.willarion.students.nomoredomains.monster',
   headers: {
-    authorization: `Bearer ${localStorage.getItem('jwt')}`,
+    // authorization: `Bearer ${localStorage.getItem('jwt')}`,
     'Content-Type': 'application/json'
   }
 }

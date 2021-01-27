@@ -4,7 +4,7 @@ class Api {
   
   constructor(options) {
     this._baseUrl = options.baseUrl;
-    this._authorization = options.headers.authorization; 
+  //  this._authorization = options.headers.authorization; 
     this._contentType = options.headers["Content-Type"];
   }
 
@@ -40,14 +40,14 @@ class Api {
     .then(this._handleOriginalResponse);
   }  
 
-  changeLikeCardStatus(cardId, isLiked) {
+  changeLikeCardStatus(cardId, isLiked, token) {
     if (isLiked) {
       //putCardLike
 
       return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
         method: 'PUT',
         headers: {
-          authorization: this._authorization
+          authorization: `Bearer ${token}`
           }
       })
       .then(this._handleOriginalResponse);
@@ -58,18 +58,18 @@ class Api {
       return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
         method: 'DELETE',
         headers: {
-          authorization: this._authorization
+          authorization: `Bearer ${token}`
           }
       })
       .then(this._handleOriginalResponse);
     }
   }
   
-  addNewCard(cardInfo) {
+  addNewCard(cardInfo, token) {
     return fetch(`${this._baseUrl}/cards`, {
       method: 'POST',
       headers: {
-        authorization: this._authorization,
+        authorization: `Bearer ${token}`,
         'Content-Type': this._contentType
         },
       body: JSON.stringify(cardInfo)
@@ -77,11 +77,11 @@ class Api {
     .then(this._handleOriginalResponse);
   }
 
-  deleteCard(cardId) {
+  deleteCard(cardId, token) {
     return fetch(`${this._baseUrl}/cards/${cardId}`, {
       method: 'DELETE',
       headers: {
-        authorization: this._authorization
+        authorization: `Bearer ${token}`,
         }
     })
     .then(this._handleOriginalResponse);
