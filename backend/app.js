@@ -6,6 +6,7 @@ const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { login, createUser } = require('./controllers/users');
+const { NotFoundError } = require('./errors/errors');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -54,8 +55,8 @@ app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: "Запрашиваемый ресурс не найден"});
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Такой страницы не существует'))
 });
 
 app.use(errorLogger);
