@@ -10,8 +10,8 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator(v) {
         return emailValidator.isEmail(v);
-      }
-    }
+      },
+    },
   },
   password: {
     type: String,
@@ -36,12 +36,12 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-          const regex = /^https?:\/\/(www.)?[\w-]{1,63}\.[\w-]{1,256}[a-z-\._~:\/\?#\[\]@!\$&'\(\)\*+,;=]*#?/i;
-          return regex.test(v);
+        const regex = /^https?:\/\/(www.)?[\w-]{1,63}\.[\w-]{1,256}[a-z-._~:/?#[\]@!$&'()*+,;=]*#?/i;
+        return regex.test(v);
       },
       message: 'Ссылка на картинку не соответствует формату :( Попробуйте ещё раз',
-    }
-  }
+    },
+  },
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
@@ -61,6 +61,5 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         });
     });
 };
-
 
 module.exports = mongoose.model('user', userSchema);
