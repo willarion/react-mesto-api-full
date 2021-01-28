@@ -33,11 +33,10 @@ class DataConflictError extends Error {
   }
 }
 
-
 module.exports = {
   NotFoundError,
   ForbiddenError,
   UnathorizedError,
   InvalidRequestError,
-  DataConflictError
+  DataConflictError,
 };

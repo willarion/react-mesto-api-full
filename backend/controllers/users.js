@@ -1,50 +1,48 @@
-const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 const {
   NotFoundError,
   UnathorizedError,
   InvalidRequestError,
-  DataConflictError
+  DataConflictError,
 } = require('../errors/errors');
-
 
 function getUsers(req, res, next) {
   User.find({})
     .then((users) => {
-      if(!users) {
+      if (!users) {
         throw new Error();
       }
-      res.send(users)
+      res.send(users);
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
 function getUserProfile(req, res, next) {
-
   User.findById(req.params.id)
     .orFail(() => {
       throw new NotFoundError('Пользователя с таким id не существует');
     })
-    .then(user => res.send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
         throw new InvalidRequestError('Невалидный id пользователя');
       }
       next(err);
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
 function getCurrentUserProfile(req, res, next) {
-
   User.findById(req.user._id)
     .then((user) => {
-      if(!user) {
+      if (!user) {
         throw new NotFoundError('Пользователя с таким id не существует');
       }
-      res.send({ data: user })
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
@@ -52,24 +50,23 @@ function getCurrentUserProfile(req, res, next) {
       }
       next(err);
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
 function updateUserProfile(req, res, next) {
   User.findByIdAndUpdate(req.user._id,
     {
-    name: req.body.name,
-    about: req.body.about
+      name: req.body.name,
+      about: req.body.about,
     }, {
-    new: true,
-    runValidators: true,
-    upsert: true
-    }
-  )
+      new: true,
+      runValidators: true,
+      upsert: true,
+    })
     .orFail(() => {
       throw new NotFoundError('Пользователя с таким id не существует');
     })
-    .then(user => res.send( user ))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new InvalidRequestError('Введённые данные невалидны');
@@ -79,22 +76,21 @@ function updateUserProfile(req, res, next) {
       }
       next(err);
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
 function updateUserAvatar(req, res, next) {
   User.findByIdAndUpdate(req.user._id,
-    {avatar: req.body.avatar},
+    { avatar: req.body.avatar },
     {
-    new: true,
-    runValidators: true,
-    upsert: true
-    }
-  )
+      new: true,
+      runValidators: true,
+      upsert: true,
+    })
     .orFail(() => {
       throw new NotFoundError('Пользователя с таким id не существует');
     })
-    .then(user => res.send( user ))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new InvalidRequestError('Введённые данные невалидны');
@@ -104,12 +100,15 @@ function updateUserAvatar(req, res, next) {
       }
       next(err);
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
 function createUser(req, res, next) {
-  const { email, password, name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
+<<<<<<< HEAD
   User.findOne({email: email})
     .then((user) => {
       if(user) {
@@ -117,22 +116,46 @@ function createUser(req, res, next) {
       } else {
         bcrypt.hash(password, 10)
           .then(hash => User.create({
+=======
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new DataConflictError('Пользователь уже зарегистрирован');
+      } else {
+        bcrypt.hash(password, 10)
+          .then((hash) => User.create({
+>>>>>>> develop
             email,
             password: hash,
             name,
             about,
+<<<<<<< HEAD
             avatar
           }))
           .then((user) => {
             const { email, name, about, avatar} = user;
+=======
+            avatar,
+          }))
+          .then((user) => {
+            const {
+              email, name, about, avatar,
+            } = user;
+>>>>>>> develop
             res.send({
               data: {
                 email,
                 name,
                 about,
+<<<<<<< HEAD
                 avatar
               }
             })
+=======
+                avatar,
+              },
+            });
+>>>>>>> develop
           })
           .catch((err) => {
             if (err.name === 'ValidationError') {
@@ -140,13 +163,17 @@ function createUser(req, res, next) {
             }
             next(err);
           })
+<<<<<<< HEAD
           .catch(err => next(err));
+=======
+          .catch((err) => next(err));
+>>>>>>> develop
       }
     })
-    .catch(err => next(err));
+    .catch((err) => next(err));
 }
 
-function login (req, res, next) {
+function login(req, res, next) {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -155,12 +182,11 @@ function login (req, res, next) {
 
       res.send({ token });
     })
-    .catch((err) => {
-      throw new UnathorizedError('Необходима авторизация')
+    .catch(() => {
+      throw new UnathorizedError('Необходима авторизация');
     })
-    .catch(err => next(err));
-};
-
+    .catch((err) => next(err));
+}
 
 module.exports = {
   getUsers,
@@ -169,5 +195,10 @@ module.exports = {
   updateUserProfile,
   updateUserAvatar,
   createUser,
+<<<<<<< HEAD
   login
 }
+=======
+  login,
+};
+>>>>>>> develop
