@@ -6,9 +6,11 @@ const { errors, celebrate, Joi } = require('celebrate');
 const bodyParser = require('body-parser');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { login, createUser } = require('./controllers/users');
+const { NotFoundError } = require('./errors/errors');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+
 const app = express();
 const PORT = 3000;
 
@@ -16,7 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 app.use(bodyParser.json());
@@ -54,15 +56,15 @@ app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: "Запрашиваемый ресурс не найден"});
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Такой страницы не существует'));
 });
 
 app.use(errorLogger);
 
-app.use(errors()); //celebrate errors
+app.use(errors()); // celebrate errors
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
 
   res
@@ -70,12 +72,11 @@ app.use((err, req, res, next) => {
     .send({
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
-        : message
+        : message,
     });
 });
 
-
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
 });
-
