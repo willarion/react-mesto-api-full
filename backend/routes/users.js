@@ -8,7 +8,7 @@ router.get('/users/me', getCurrentUserProfile);
 
 router.get('/users/:id', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().alphanum().length(24),
+    id: Joi.string().alphanum().length(24),
   }),
 }), getUserProfile);
 
