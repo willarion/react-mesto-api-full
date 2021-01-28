@@ -123,7 +123,17 @@ function createUser(req, res, next) {
             about,
             avatar
           }))
-          .then(user => res.send({ data: user }))
+          .then((user) => {
+            const { email, name, about, avatar} = user;
+            res.send({
+              data: {
+                email,
+                name,
+                about,
+                avatar
+              }
+            })
+          })
           .catch((err) => {
             if (err.name === 'ValidationError') {
               throw new InvalidRequestError('Введённые данные невалидны');
