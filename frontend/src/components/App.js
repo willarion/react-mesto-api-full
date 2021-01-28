@@ -75,17 +75,17 @@ function App() {
     if (!loggedIn) {
       return
     } else if (location === '/') {
-      setUrlAdress('/sing-in');
+      setUrlAdress('/sign-in');
       setUrlName('Выйти');
     }
   }, [location, loggedIn]);
   
   React.useEffect(() => {
-    if (location === '/sing-up') {
-      setUrlAdress('/sing-in');
+    if (location === '/sign-up') {
+      setUrlAdress('/sign-in');
       setUrlName('Войти');
-    } else if (location === '/sing-in') {
-      setUrlAdress('/sing-up');
+    } else if (location === '/sign-in') {
+      setUrlAdress('/sign-up');
       setUrlName('Регистрация');
     }
   }, [loggedIn, location]);
@@ -147,11 +147,11 @@ function App() {
   }
 
 
-  function singOut() {
+  function signOut() {
     if (urlName === 'Выйти') {
       localStorage.removeItem('jwt');
       handleUserEmail('');
-      history.push('/sing-in');
+      history.push('/sign-in');
     } else {
       return;
     }
@@ -297,16 +297,16 @@ function App() {
         email={userEmail} 
         urlAdress={urlAdress}
         urlName={urlName}
-        onSingOut={singOut}
+        onsignOut={signOut}
         />
           <Switch>
 
-            <Route path="/sing-up">
+            <Route path="/sign-up">
               <Register 
               onSignUp={signUp} />
             </Route>  
 
-            <Route path="/sing-in">
+            <Route path="/sign-in">
               <Login 
                 onSignIn={signIn} 
               />
