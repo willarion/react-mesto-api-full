@@ -8,7 +8,7 @@ router.get('/users/me', getCurrentUserProfile);
 
 router.get('/users/:id', celebrate({
   params: Joi.object().keys({
-    postId: Joi.string().alphanum().length(24),
+    id: Joi.string().alphanum().length(24),
   }),
 }), getUserProfile);
 
@@ -21,7 +21,7 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().regex(/^https?:\/\/(www.)?[\w-]{1,63}\.[\w-]{1,256}[a-z-\._~:\/\?#\[\]@!\$&'\(\)\*+,;=]*#?/i),
   })
 }), updateUserAvatar);
 
