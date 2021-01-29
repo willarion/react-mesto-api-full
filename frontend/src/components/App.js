@@ -125,8 +125,6 @@ function App() {
 
         auth.getContent(data.token)
           .then(([userInfoObject, cardsArray]) => {
-            const res = [userInfoObject, cardsArray];
-
             setCurrentUser(userInfoObject.data);
             setCards(cardsArray.reverse());
           })
